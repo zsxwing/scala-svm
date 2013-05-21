@@ -1,0 +1,31 @@
+apply plugin: 'scala'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+
+sourceCompatibility = JavaVersion.VERSION_1_6
+targetCompatibility = JavaVersion.VERSION_1_6
+
+eclipse {
+  classpath {
+    downloadSources = true
+    downloadJavadoc = true
+  }
+}
+
+group = 'me.iamzsx'
+archivesBaseName = 'scala-svm'
+version = '0.1-SNAPSHOT'
+description = 'A scala implementation of svm'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'org.scala-lang:scala-library:2.9.2'
+  testCompile 'org.scala-lang:scala-library:2.9.2'
+}
+
+tasks.withType(ScalaCompile) {
+  scalaCompileOptions.useAnt = false
+}
