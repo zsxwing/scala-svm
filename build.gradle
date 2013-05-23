@@ -24,6 +24,8 @@ repositories {
 dependencies {
   compile 'org.scala-lang:scala-library:2.9.2'
   testCompile 'org.scala-lang:scala-library:2.9.2'
+  testCompile 'junit:junit:4.10'
+  testCompile 'org.scalatest:scalatest_2.9.2:1.8'
 }
 
 tasks.withType(ScalaCompile) {
