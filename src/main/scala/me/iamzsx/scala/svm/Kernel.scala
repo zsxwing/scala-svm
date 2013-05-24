@@ -52,7 +52,7 @@ trait Kernel {
 /**
  * @see http://en.wikipedia.org/wiki/Support_vector_machine
  */
-case class LinearKernel extends Kernel {
+class LinearKernel extends Kernel {
 
   override def kernelType = LINEAR
 
