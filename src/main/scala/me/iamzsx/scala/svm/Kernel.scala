@@ -66,7 +66,7 @@ class LinearKernel extends Kernel {
 /**
  *
  */
-class PolynomialKernel(val gamma: Double, val coef0: Double, val degree: Int) extends Kernel {
+class PolynomialKernel(val gamma: Double, val coef0: Double = 0, val degree: Int = 3) extends Kernel {
   require(degree >= 0) // Why degree == 0 is valid?
 
   override def kernelType = POLY
@@ -116,7 +116,7 @@ class RBFKernel(val gamma: Double) extends Kernel {
 /**
  * @see http://en.wikipedia.org/wiki/Support_vector_machine#Nonlinear_classification
  */
-class SigmoidKernel(val gamma: Double, val coef0: Double) extends Kernel {
+class SigmoidKernel(val gamma: Double, val coef0: Double = 0) extends Kernel {
   require(gamma >= 0) // Why gamma == 0 is valid?
 
   override def kernelType = SIGMOID

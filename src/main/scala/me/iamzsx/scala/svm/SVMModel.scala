@@ -22,9 +22,11 @@ class SVMNode(
 }
 
 import SVMType._
+
 class SVMParameter(
   val svmType: SVMType,
-  val kernel: Kernel) {
+  val kernel: Kernel,
+  val nu: Double) {
 
   override def toString = Array(
     "svm_type " + svmType, kernel.toString).mkString("\n")
@@ -128,7 +130,10 @@ class SolutionInfo {
 
 class DecisionFunction(val alpha: Array[Double], val rho: Double)
 
-class SVMProblem(val param: SVMParameter, val y: Array[Double], val x: SVMNode) {
+class SVMProblem(val param: SVMParameter, val y: Array[Double], val x: Array[Array[SVMNode]]) {
+  require(y.size == x.size)
+
+  val size = y.size
 
   def train_one(Cp: Double, Cn: Double) = {
     val alpha = Array(0.0)
