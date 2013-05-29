@@ -26,7 +26,9 @@ import SVMType._
 class SVMParameter(
   val svmType: SVMType,
   val kernel: Kernel,
-  val nu: Double) {
+  val nu: Double,
+  val eps: Double,
+  val shrinking: Boolean) {
 
   override def toString = Array(
     "svm_type " + svmType, kernel.toString).mkString("\n")
@@ -186,5 +188,4 @@ class SVMProblem(val param: SVMParameter, val y: Array[Double], val x: Array[Arr
   }
 
 }
-
 
