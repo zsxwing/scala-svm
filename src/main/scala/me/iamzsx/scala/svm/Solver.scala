@@ -72,7 +72,8 @@ class Solver(
       calculateRho,
       Cp,
       Cn,
-      0)
+      0,
+      alpha)
   }
 
   def doShrinking {
@@ -269,11 +270,11 @@ object Solver {
   def solveOneClass(problem: SVMProblem, param: SVMParameter): Solution = {
     val n = (param.nu * problem.size).toInt
 
-    val alpha = (0 until problem.size).map(_ match {
+    val alpha = Array.tabulate(problem.size)(_ match {
       case i if i < n => 1.0
       case i if i == n && i < problem.size => n
       case _ => 0.0
-    }).toArray
+    })
 
     val zeros = Array.fill(problem.size)(0.0)
     val ones = Array.fill(problem.size)(1)
@@ -297,6 +298,7 @@ class Solution(
   val rho: Double,
   val upperBoundP: Double,
   val upperBoundN: Double,
-  val r: Double) {
+  val r: Double,
+  val alpha: Array[Double]) {
 }
 
