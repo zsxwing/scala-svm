@@ -7,7 +7,7 @@ abstract class QMatrix {
 
 class OneClassQMatrix(val problem: SVMProblem, val param: SVMParameter) extends QMatrix {
   val x: Array[List[SVMNode]] = Array(List(new SVMNode(1, 0.2)))
-  val qd = (0 until problem.size).map(i => param.kernel(x(i), x(i)))
+  val qd = Array.tabulate(problem.size)(i => param.kernel(x(i), x(i)))
 
   def swapIndex(i: Int, j: Int) {
 
@@ -219,10 +219,7 @@ class Solver(
       }
     }
 
-    if (maxG - minG < epsilon) {
-      (-1, -1)
-    }
-    (i, j)
+    if (maxG - minG < epsilon) (-1, -1) else (i, j)
   }
 
   private def getMaxIteration() = {
