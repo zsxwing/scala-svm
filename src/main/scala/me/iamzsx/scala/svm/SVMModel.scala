@@ -25,12 +25,18 @@ class SVMNode(
   override def toString = (index, value).toString
 }
 
+object SVMNode {
+  def apply(index: Int, value: Double) = new SVMNode(index, value)
+}
+
 class SVMParameter(
   val svmType: SVMType,
   val kernel: Kernel,
   val nu: Double,
   val eps: Double,
   val shrinking: Boolean) {
+
+  var gamma = 0.0
 
   override def toString = Array(
     "svm_type " + svmType, kernel.toString).mkString("\n")
@@ -204,13 +210,40 @@ class SVMProblem(val param: SVMParameter, val y: Array[Double], val x: Array[Arr
 
 object SVMProblem {
 
-  def get(source: Source) = {
+  def get(param: SVMParameter, source: Source) = {
     val y = ArrayBuffer[Double]()
     val x = ArrayBuffer[Array[SVMNode]]()
-    for (line <- source.getLines) {
-      val (label, features) = line.split('\t').splitAt(1)
+    var maxIndex = 0
+    for (line <- source.getLines.map(_.trim)) {
+      val splits = line.split('\t')
+      if (splits.size <= 2) {
+        // Do we need to support no feature?
+        throw new IOException("Invalid input: " + line)
+      }
+      val (Array(label), features) = splits.splitAt(1)
+      y += label.toDouble
+      var featureMaxIndex = 0
+      x += features.map((feature: String) => {
+        val splits = feature.split(':')
+        if (splits.size != 2) {
+          throw new IOException("Invalid input: " + line)
+        }
+        val index = splits(0).toInt
+        if (index <= featureMaxIndex) {
+          throw new IOException("Index must be in order and unique: " + line)
+        } else {
+          featureMaxIndex = index
+        }
+        val value = splits(1).toDouble
+        SVMNode(index, value)
+      })
+      maxIndex = maxIndex max featureMaxIndex
     }
-    null
+    if (param.gamma == 0 && maxIndex > 0) {
+      param.gamma = 1.0 / maxIndex
+    }
+    new SVMProblem(param, y.toArray, x.toArray)
   }
+
 }
 
