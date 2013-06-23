@@ -3,14 +3,23 @@ package me.iamzsx.scala.svm
 abstract class QMatrix {
   def swapIndex(i: Int, j: Int)
   def apply(i: Int, j: Int): Double
+
+  protected def swap[T](array: scala.collection.mutable.Seq[T], i: Int, j: Int) {
+    val temp = array(i);
+    array(i) = array(j);
+    array(j) = temp;
+  }
 }
 
 class OneClassQMatrix(val problem: SVMProblem, val param: SVMParameter) extends QMatrix {
   val x: Array[List[SVMNode]] = Array(List(new SVMNode(1, 0.2)))
   val qd = Array.tabulate(problem.size)(i => param.kernel(x(i), x(i)))
+  val y = problem.y.clone
 
   def swapIndex(i: Int, j: Int) {
-
+    swap(x, i, j)
+    swap(y, i, j)
+    swap(qd, i, j)
   }
 
   override def apply(i: Int, j: Int) = {
@@ -285,6 +294,58 @@ object Solver {
       alpha,
       1.0,
       1.0);
+
+    solver.solve
+  }
+
+  def solveEpsilonSVR(problem: SVMProblem, param: EpsilonSVRSVMParamter): Solution = {
+    val alpha2 = Array.fill(2 * problem.size)(0.0)
+    val linearTerm = Array.tabulate(2 * problem.size)(_ match {
+      case i if i < problem.size => param.p - problem.y(i)
+      case i => param.p + problem.y(i - problem.size)
+    })
+    val y = Array.tabulate(2 * problem.size)(_ match {
+      case i if i < problem.size => 1
+      case _ => -1
+    })
+
+    val solver = new Solver(
+      problem,
+      param,
+      new OneClassQMatrix(problem, param), // TODO
+      linearTerm,
+      y,
+      alpha2,
+      param.C,
+      param.C);
+
+    solver.solve
+
+    // TODO
+  }
+
+  def solveNuSVR(problem: SVMProblem, param: EpsilonSVRSVMParamter): Solution = {
+    var sum = param.C * param.nu * problem.size / 2;
+
+    val alpha2 = Array.fill(2 * problem.size)(0.0)
+    val linearTerm = Array.tabulate(2 * problem.size)(_ match {
+      case i if i < problem.size => -problem.y(i)
+      case i => problem.y(i - problem.size)
+    })
+    val y = Array.tabulate(2 * problem.size)(_ match {
+      case i if i < problem.size => 1
+      case _ => -1
+    })
+
+    val solver = new Solver(
+      problem,
+      param,
+      new OneClassQMatrix(problem, param), // TODO
+      linearTerm,
+      y,
+      alpha2,
+      param.C,
+      param.C);
 
     solver.solve
   }

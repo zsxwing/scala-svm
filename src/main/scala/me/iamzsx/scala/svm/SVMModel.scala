@@ -1,9 +1,11 @@
 package me.iamzsx.scala.svm
 
 import java.io._
-
 import scala.math._
 import scala.io._
+
+import scala.io.Source
+import scala.collection.mutable.ArrayBuffer
 
 object SVMType extends Enumeration {
   type SVMType = Value
@@ -14,14 +16,14 @@ object SVMType extends Enumeration {
   val NU_SVR = Value("nu_svr");
 }
 
+import SVMType._
+
 class SVMNode(
   val index: Int,
   val value: Double) {
 
   override def toString = (index, value).toString
 }
-
-import SVMType._
 
 class SVMParameter(
   val svmType: SVMType,
@@ -32,6 +34,17 @@ class SVMParameter(
 
   override def toString = Array(
     "svm_type " + svmType, kernel.toString).mkString("\n")
+}
+
+class EpsilonSVRSVMParamter(
+  svmType: SVMType,
+  kernel: Kernel,
+  nu: Double,
+  eps: Double,
+  shrinking: Boolean,
+  val C: Double,
+  val p: Double) extends SVMParameter(svmType, kernel, nu, eps, shrinking) {
+
 }
 
 abstract class SVMModel(
@@ -187,5 +200,17 @@ class SVMProblem(val param: SVMParameter, val y: Array[Double], val x: Array[Arr
 
   }
 
+}
+
+object SVMProblem {
+
+  def get(source: Source) = {
+    val y = ArrayBuffer[Double]()
+    val x = ArrayBuffer[Array[SVMNode]]()
+    for (line <- source.getLines) {
+      val (label, features) = line.split('\t').splitAt(1)
+    }
+    null
+  }
 }
 
