@@ -216,7 +216,7 @@ object SVMProblem {
     var maxIndex = 0
     for (line <- source.getLines.map(_.trim)) {
       val splits = line.split('\t')
-      if (splits.size <= 2) {
+      if (splits.size <= 1) {
         // Do we need to support no feature?
         throw new IOException("Invalid input: " + line)
       }
