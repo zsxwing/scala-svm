@@ -58,7 +58,7 @@ class Solver(
 
   private def getAlphaStatus(i: Int) = {
     if (alpha(i) >= getC(i)) UPPER_BOUND
-    else if (alpha(i) < 0) LOWER_BOUND
+    else if (alpha(i) <= 0) LOWER_BOUND
     else FREE
   }
 
