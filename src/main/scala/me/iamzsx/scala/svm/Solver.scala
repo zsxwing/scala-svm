@@ -12,7 +12,7 @@ abstract class QMatrix {
 }
 
 class OneClassQMatrix(val problem: SVMProblem, val param: SVMParameter) extends QMatrix {
-  val x: Array[List[SVMNode]] = Array(List(new SVMNode(1, 0.2)))
+  val x: Array[List[SVMNode]] = problem.x
   val qd = Array.tabulate(problem.size)(i => param.kernel(x(i), x(i)))
   val y = problem.y.clone
 
@@ -71,8 +71,7 @@ class Solver(
   var counter = 1;
 
   def solve: Solution = {
-    val G = p
-    val G_bar = Array.fill(len)(0)
+    init
 
     optimize
 
@@ -83,6 +82,21 @@ class Solver(
       Cn,
       0,
       alpha)
+  }
+
+  def init {
+    for (
+      i <- 0 until len if !isLowerBound(i)
+    ) {
+      for (j <- 0 until len) {
+        G(j) += alpha(i) * Q(i, j)
+      }
+      if (isUpperBound(i)) {
+        for (j <- 0 until len) {
+          GBar(j) += getC(i) * Q(i, j)
+        }
+      }
+    }
   }
 
   def doShrinking {
@@ -182,7 +196,8 @@ class Solver(
     j != -1
   }
 
-  val G = Array(0.1)
+  val G = p.clone
+  val GBar = Array.fill(len)(0.0)
 
   def selectWorkingSet = {
     var maxG = Double.MinValue
@@ -268,7 +283,6 @@ class Solver(
     }
   }
 
-  val GBar = Array(0.1)
 }
 
 object Solver {
@@ -278,7 +292,7 @@ object Solver {
 
     val alpha = Array.tabulate(problem.size)(_ match {
       case i if i < n => 1.0
-      case i if i == n && i < problem.size => n
+      case i if i == n && i < problem.size => param.nu * problem.size - n;
       case _ => 0.0
     })
 
@@ -351,7 +365,7 @@ object Solver {
   }
 }
 
-class Solution(
+case class Solution(
   val obj: Double,
   val rho: Double,
   val upperBoundP: Double,

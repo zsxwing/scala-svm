@@ -8,7 +8,7 @@ targetCompatibility = JavaVersion.VERSION_1_6
 eclipse {
   classpath {
     downloadSources = true
-    downloadJavadoc = true
+    downloadJavadoc = false
   }
 }
 
@@ -22,10 +22,10 @@ repositories {
 }
 
 dependencies {
-  compile 'org.scala-lang:scala-library:2.9.2'
-  testCompile 'org.scala-lang:scala-library:2.9.2'
+  compile 'org.scala-lang:scala-library:2.10.1'
+  testCompile 'org.scala-lang:scala-library:2.10.1'
   testCompile 'junit:junit:4.10'
-  testCompile 'org.scalatest:scalatest_2.9.2:1.8'
+  testCompile 'org.scalatest:scalatest_2.10:1.9.1'
 }
 
 tasks.withType(ScalaCompile) {
