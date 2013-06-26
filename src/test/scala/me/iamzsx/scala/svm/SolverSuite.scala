@@ -12,7 +12,7 @@ import scala.io.Source
 @RunWith(classOf[JUnitRunner])
 class SolverSuite extends FunSuite {
 
-  val DELTA = 10E-3
+  val DELTA = 10E-6
 
   test("1 train case") {
     val param = new SVMParameter(
@@ -23,8 +23,8 @@ class SolverSuite extends FunSuite {
     val problem = SVMProblem.get(param, source)
 
     val solution = Solver.solveOneClass(problem, param)
-    assertEquals(77.482246, solution.obj, DELTA)
-    assertEquals(309.92898559570312, solution.rho, DELTA)
+    assertEquals(77.482250, solution.obj, DELTA)
+    assertEquals(309.929000, solution.rho, DELTA)
     assertEquals(1, solution.alpha.size)
     assertEquals(0.5, solution.alpha(0), DELTA)
     assertEquals(1, solution.upperBoundP, DELTA)
@@ -41,8 +41,8 @@ class SolverSuite extends FunSuite {
     val problem = SVMProblem.get(param, source)
 
     val solution = Solver.solveOneClass(problem, param)
-    assertEquals(309.928986, solution.obj, DELTA)
-    assertEquals(620.357971, solution.rho, DELTA)
+    assertEquals(309.929000, solution.obj, DELTA)
+    assertEquals(620.358000, solution.rho, DELTA)
     assertEquals(2, solution.alpha.size)
     assertEquals(1, solution.alpha(0), DELTA)
     assertEquals(0, solution.alpha(1), DELTA)
