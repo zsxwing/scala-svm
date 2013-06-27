@@ -82,54 +82,42 @@ class EpsilonSVRSVMParamter(
 
 }
 
-abstract class SVMModel(
+case class SupportVector(
+  val vector: List[SVMNode],
+  val coefficient: Double,
+  val index: Int) {
+
+//  override def toString = vector.toString + " " + coefficient + " " + index
+}
+
+class SVMModel(
+  val nr_class: Int,
   val param: SVMParameter,
-  val SV: Array[List[SVMNode]],
+  val supportVectors: Array[Array[SupportVector]],
   val rho: Array[Double]) {
+
+  require(supportVectors.size == rho.size)
 
   def predict(x: List[SVMNode]) = {
     predict_values(x)
   }
 
-  def predict_values(x: List[SVMNode]): (Double)
+  def predict_values(x: List[SVMNode]): (Double) = 0.0
 
   override def toString = Array(
     param.toString,
-    "total_sv " + SV.size,
+    "total_sv " + supportVectors.size,
     "rho " + rho.mkString(" ")).mkString("\n")
 }
 
 class BaseModel(
   param: SVMParameter,
-  SV: Array[List[SVMNode]],
-  rho: Array[Double]) extends SVMModel(param, SV, rho) {
-
-  def predict_values(x: List[SVMNode]): Double = {
-    SV.map(param.kernel(x, _)).reduce(_ + _) - rho(0);
-  }
-}
-
-class OneClassModel(
-  param: SVMParameter,
-  SV: Array[List[SVMNode]],
-  rho: Array[Double]) extends BaseModel(param, SV, rho) {
+  supportVectors: Array[Array[SupportVector]],
+  rho: Array[Double]) extends SVMModel(2, param, supportVectors, rho) {
 
   override def predict_values(x: List[SVMNode]): Double = {
-    if (super.predict_values(x) > 0) 1 else -1
+    supportVectors(0).map(supportVector => param.kernel(x, supportVector.vector)).sum - rho(0);
   }
-
-}
-
-class EpsilonSVRModel(
-  param: SVMParameter,
-  SV: Array[List[SVMNode]],
-  rho: Array[Double]) extends BaseModel(param, SV, rho) {
-}
-
-class NUSVRModel(
-  param: SVMParameter,
-  SV: Array[List[SVMNode]],
-  rho: Array[Double]) extends BaseModel(param, SV, rho) {
 }
 
 class CSVCModel {
@@ -178,5 +166,4 @@ class SolutionInfo {
   val rho: Double = 0;
 }
 
-class DecisionFunction(val alpha: Array[Double], val rho: Double)
 

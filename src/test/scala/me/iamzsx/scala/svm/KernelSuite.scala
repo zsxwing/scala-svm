@@ -10,35 +10,34 @@ import org.scalatest.junit.JUnitRunner
 import org.junit.Assert._
 
 import KernelType._
+import AssertUtil._
 
 @RunWith(classOf[JUnitRunner])
 class KernelTypeSuite extends FunSuite {
 
-  val DELTA = 10E-6
-
   test("dot") {
     val x = List(new SVMNode(1, 0.4), new SVMNode(2, 0.5))
     val y = List(new SVMNode(1, 0.9), new SVMNode(3, 0.4))
-    assertEquals(0.36, dot(x, y), DELTA)
+    svmAssertEquals(0.36, dot(x, y))
   }
 
   test("dot with normal") {
     val x = List(new SVMNode(1, 0.4), new SVMNode(2, 0.5))
     val y = List(new SVMNode(1, 0.9), new SVMNode(2, 0.4))
-    assertEquals(0.56, dot(x, y), DELTA)
+    svmAssertEquals(0.56, dot(x, y))
   }
 
   test("dot with empty") {
     val x = List(new SVMNode(1, 0.4), new SVMNode(2, 0.5))
     val y = List(new SVMNode(4, 0.9), new SVMNode(3, 0.4))
-    assertEquals(0, dot(x, y), DELTA)
+    svmAssertEquals(0, dot(x, y))
   }
 
   test("powi") {
-    assertEquals(16, powi(2.0, 4), DELTA)
-    assertEquals(1, powi(2.0, 0), DELTA)
-    assertEquals(1.21, powi(1.1, 2), DELTA)
-    assertEquals(1.23 * 1.23 * 1.23 * 1.23 * 1.23, powi(1.23, 5), DELTA)
+    svmAssertEquals(16, powi(2.0, 4))
+    svmAssertEquals(1, powi(2.0, 0))
+    svmAssertEquals(1.21, powi(1.1, 2))
+    svmAssertEquals(1.23 * 1.23 * 1.23 * 1.23 * 1.23, powi(1.23, 5))
   }
 }
 
@@ -69,14 +68,12 @@ class PolynomialKernelSuite extends FunSuite {
     val x = List(new SVMNode(1, 0.4), new SVMNode(2, 0.5))
     val y = List(new SVMNode(1, 0.9), new SVMNode(3, 0.4))
 
-    assertEquals(pow(1.0 * 0.36 + 2.0, 3), new PolynomialKernel(1.0, 2.0, 3)(x, y), DELTA)
+    svmAssertEquals(pow(1.0 * 0.36 + 2.0, 3), new PolynomialKernel(1.0, 2.0, 3)(x, y))
   }
 }
 
 @RunWith(classOf[JUnitRunner])
 class RBFKernelSuite extends FunSuite {
-
-  val DELTA = 10E-6
 
   test("toString") {
     assertEquals("kernel_type rbf\n" +
@@ -87,14 +84,12 @@ class RBFKernelSuite extends FunSuite {
     val x = List(new SVMNode(1, 0.4), new SVMNode(2, 0.5))
     val y = List(new SVMNode(1, 0.9), new SVMNode(3, 0.4))
 
-    assertEquals(exp(-2.0 * 0.66), new RBFKernel(2.0)(x, y), DELTA)
+    svmAssertEquals(exp(-2.0 * 0.66), new RBFKernel(2.0)(x, y))
   }
 }
 
 @RunWith(classOf[JUnitRunner])
 class SigmoidKernelSuite extends FunSuite {
-
-  val DELTA = 10E-6
 
   test("toString") {
     assertEquals("kernel_type sigmoid\n" +
@@ -106,6 +101,6 @@ class SigmoidKernelSuite extends FunSuite {
     val x = List(new SVMNode(1, 0.4), new SVMNode(2, 0.5))
     val y = List(new SVMNode(1, 0.9), new SVMNode(3, 0.4))
 
-    assertEquals(tanh(1.0 * 0.36 + 2.0), new SigmoidKernel(1.0, 2.0)(x, y), DELTA)
+    svmAssertEquals(tanh(1.0 * 0.36 + 2.0), new SigmoidKernel(1.0, 2.0)(x, y))
   }
 }

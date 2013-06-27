@@ -11,7 +11,7 @@ import scala.io.Source
 import AssertUtil._
 
 @RunWith(classOf[JUnitRunner])
-class SolverSuite extends FunSuite {
+class SVMTrainerSuite extends FunSuite {
 
   test("1 train case") {
     val param = new SVMParameter(
@@ -22,12 +22,13 @@ class SolverSuite extends FunSuite {
     val problem = SVMProblem.get(param, source)
 
     val solution = Solver.solveOneClass(problem, param)
-    svmAssertEquals(77.482250, solution.obj)
-    svmAssertEquals(309.929000, solution.rho)
-    svmAssertEquals(Array(0.5), solution.alpha)
-    svmAssertEquals(1, solution.upperBoundP)
-    svmAssertEquals(1, solution.upperBoundN)
-    svmAssertEquals(0, solution.r)
+    val model = SVM.train(param, problem)
+    assertEquals(2, model.nr_class)
+    svmAssertEquals(309.929000, model.rho(0))
+    svmAssertEquals(
+      Array(
+        Array(
+          new SupportVector(problem.x(0), 0.5, 1))), model.supportVectors)
   }
 
   test("2 train case") {
@@ -41,7 +42,9 @@ class SolverSuite extends FunSuite {
     val solution = Solver.solveOneClass(problem, param)
     svmAssertEquals(309.929000, solution.obj)
     svmAssertEquals(620.358000, solution.rho)
-    svmAssertEquals(Array(1.0, 0.0), solution.alpha)
+    assertEquals(2, solution.alpha.size)
+    svmAssertEquals(1, solution.alpha(0))
+    svmAssertEquals(0, solution.alpha(1))
     svmAssertEquals(1, solution.upperBoundP)
     svmAssertEquals(1, solution.upperBoundN)
     svmAssertEquals(0, solution.r)
