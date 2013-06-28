@@ -18,17 +18,6 @@ object SVMType extends Enumeration {
 
 import SVMType._
 
-class SVMNode(
-  val index: Int,
-  val value: Double) {
-
-  override def toString = (index, value).toString
-}
-
-object SVMNode {
-  def apply(index: Int, value: Double) = new SVMNode(index, value)
-}
-
 trait Gamma {
   def gamma: Double
 }
@@ -87,7 +76,7 @@ case class SupportVector(
   val coefficient: Double,
   val index: Int) {
 
-//  override def toString = vector.toString + " " + coefficient + " " + index
+  //  override def toString = vector.toString + " " + coefficient + " " + index
 }
 
 class SVMModel(

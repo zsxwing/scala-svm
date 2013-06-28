@@ -68,6 +68,15 @@ class OneClassOrRegressionSVM extends SVM {
   }
 }
 
+class RegressionSVMTrainer extends OneClassOrRegressionSVM {
+
+  override def train(param: SVMParameter, problem: SVMProblem): SVMModel = {
+
+    null
+  }
+
+}
+
 object SVM {
   def train(param: SVMParameter, problem: SVMProblem): SVMModel = {
     new OneClassOrRegressionSVM().train(param, problem)

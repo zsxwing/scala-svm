@@ -9,68 +9,45 @@ import scala.math.abs
 
 import SVMType._
 
-class SVMProblem(val param: SVMParameter, val y: Array[Double], val x: Array[List[SVMNode]]) {
-  require(y.size == x.size)
+class SVMNode(
+  val index: Int,
+  val value: Double) {
 
-  val size = y.size
+  override def toString = index + ":" + value
+}
 
-  def train_one(Cp: Double, Cn: Double) = {
-    val alpha = Array(0.0)
+object SVMNode {
+  def apply(index: Int, value: Double) = new SVMNode(index, value)
+}
 
-    param.svmType match {
-      case C_SVC =>
-        solve_c_svc
-      case NU_SVC =>
-        solve_nu_svc
-      case ONE_CLASS =>
-        solve_one_class
-      case EPSILON_SVR =>
-        solve_epsilon_svr
-      case NU_SVR =>
-        solve_nu_svr
-    }
+class Instance(
+  val x: List[SVMNode],
+  val y: Double) {
 
-    val si = new SolutionInfo
-    val nSV = alpha.filter(abs(_) > 0).size
-    val nBSV =
-      0 until alpha.size filter (i => abs(alpha(i)) > 0 &&
-        (y(i) > 0 && abs(alpha(i)) >= si.upper_bound_p) ||
-        (y(i) <= 0 && abs(alpha(i)) >= si.upper_bound_n)) size
+  override def toString = "(" + y + "|" + x.mkString(", ") + ")"
+}
 
-    new DecisionFunction(alpha, si.rho)
-  }
+object Instance {
+  def apply(x: List[SVMNode], y: Double) = new Instance(x, y)
+}
 
-  def train {
+class SVMProblem(val instances: Array[Instance]) {
+  val size = instances.size
+  lazy val xs = instances.map(_.x)
+  lazy val ys = instances.map(_.y)
 
-  }
+  def x(i: Int) = instances(i).x
+  def y(i: Int) = instances(i).y
 
-  def solve_c_svc {
-
-  }
-
-  def solve_nu_svc {
-
-  }
-
-  def solve_one_class {
-
-  }
-
-  def solve_epsilon_svr {
-
-  }
-
-  def solve_nu_svr {
-
-  }
-
+  override def toString = instances.mkString("\n")
 }
 
 object SVMProblem {
 
+  def apply(instances: Array[Instance]) = new SVMProblem(instances)
+
   def get(param: SVMParameter, source: Source) = {
-    val y = ArrayBuffer[Double]()
-    val x = ArrayBuffer[List[SVMNode]]()
+    val instances = ArrayBuffer[Instance]()
     var maxIndex = 0
     for (line <- source.getLines.map(_.trim)) {
       val splits = line.split('\t')
@@ -79,9 +56,9 @@ object SVMProblem {
         throw new IOException("Invalid input: " + line)
       }
       val (Array(label), features) = splits.splitAt(1)
-      y += label.toDouble
+      val y = label.toDouble
       var featureMaxIndex = 0
-      x += features.map((feature: String) => {
+      val x = features.map((feature: String) => {
         val splits = feature.split(':')
         if (splits.size != 2) {
           throw new IOException("Invalid input: " + line)
@@ -95,12 +72,13 @@ object SVMProblem {
         val value = splits(1).toDouble
         SVMNode(index, value)
       }).toList
+      instances += Instance(x, y)
       maxIndex = maxIndex max featureMaxIndex
     }
     if (param.gamma == 0 && maxIndex > 0) {
       param.gamma = 1.0 / maxIndex
     }
-    new SVMProblem(param, y.toArray, x.toArray)
+    new SVMProblem(instances.toArray)
   }
 
 }

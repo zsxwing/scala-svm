@@ -17,9 +17,9 @@ abstract class QMatrix {
 }
 
 class OneClassQMatrix(val problem: SVMProblem, val param: SVMParameter) extends QMatrix {
-  val x: Array[List[SVMNode]] = problem.x
+  val x: Array[List[SVMNode]] = problem.xs.clone
   val qd = Array.tabulate(problem.size)(i => param.kernel(x(i), x(i)))
-  val y = problem.y.clone
+  val y = problem.ys.clone
 
   def swapIndex(i: Int, j: Int) {
     swap(x, i, j)
