@@ -32,12 +32,18 @@ object Instance {
 }
 
 class SVMProblem(val instances: Array[Instance]) {
+  require(instances.size > 0)
+
   val size = instances.size
   lazy val xs = instances.map(_.x)
   lazy val ys = instances.map(_.y)
 
   def x(i: Int) = instances(i).x
   def y(i: Int) = instances(i).y
+
+  def groupClasses = {
+    instances.groupBy(_.y).map(x => (x._1, SVMProblem(x._2)))
+  }
 
   override def toString = instances.mkString("\n")
 }
