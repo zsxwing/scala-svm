@@ -7,17 +7,6 @@ import scala.io._
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
 
-object SVMType extends Enumeration {
-  type SVMType = Value
-  val C_SVC = Value("c_svc")
-  val NU_SVC = Value("nu_svc")
-  val ONE_CLASS = Value("one_class");
-  val EPSILON_SVR = Value("epsilon_svr");
-  val NU_SVR = Value("nu_svr");
-}
-
-import SVMType._
-
 trait Gamma {
   def gamma: Double
 }
@@ -40,16 +29,13 @@ class SigmoidParameter(
   override val coef0: Double) extends Gamma with Coef0
 
 class SVMParameter(
-  val svmType: SVMType,
   val kernel: Kernel,
   val nu: Double = 0.5,
   val eps: Double = 0.001,
-  val shrinking: Boolean = false) {
-
-  var gamma = 0.0
+  var gamma: Double = 0.0) {
 
   override def toString = Array(
-    "svm_type " + svmType, kernel.toString).mkString("\n")
+    kernel.toString).mkString("\n")
 }
 
 class SVMTrainParameter {
@@ -61,13 +47,11 @@ object SVMParameter {
 }
 
 class EpsilonSVRSVMParamter(
-  svmType: SVMType,
   kernel: Kernel,
   nu: Double,
   eps: Double,
-  shrinking: Boolean,
   val C: Double,
-  val p: Double) extends SVMParameter(svmType, kernel, nu, eps, shrinking) {
+  val p: Double) extends SVMParameter(kernel, nu, eps) {
 
 }
 
@@ -91,7 +75,11 @@ class SVMModel(
     predict_values(x)
   }
 
+  def predict(instance: Instance): Double = predict(instance.x)
+
   def predict_values(x: List[SVMNode]): (Double) = 0.0
+
+  def save(file: String) {}
 
   override def toString = Array(
     param.toString,

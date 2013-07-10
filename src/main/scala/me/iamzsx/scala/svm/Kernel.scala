@@ -49,6 +49,10 @@ trait Kernel {
   def apply(x: List[SVMNode], y: List[SVMNode]): Double
 }
 
+object Kernel {
+  
+}
+
 /**
  * @see http://en.wikipedia.org/wiki/Support_vector_machine
  */

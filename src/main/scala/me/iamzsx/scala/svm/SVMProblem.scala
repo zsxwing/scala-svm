@@ -7,8 +7,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 import scala.math.abs
 
-import SVMType._
-
 class SVMNode(
   val index: Int,
   val value: Double) {
