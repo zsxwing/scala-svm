@@ -6,7 +6,6 @@ import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import org.junit.Assert._
 import KernelType._
-import SVMType._
 import scala.io.Source
 import AssertUtil._
 
@@ -14,9 +13,7 @@ import AssertUtil._
 class SolverSuite extends FunSuite {
 
   test("1 train case") {
-    val param = new SVMParameter(
-      SVMType.ONE_CLASS,
-      new LinearKernel)
+    val param = new SVMParameter(new LinearKernel)
 
     val source = Source.fromString("-1\t1:1.0\t2:22.08\t3:11.46")
     val problem = SVMProblem.get(param, source)
@@ -31,9 +28,7 @@ class SolverSuite extends FunSuite {
   }
 
   test("2 train case") {
-    val param = new SVMParameter(
-      SVMType.ONE_CLASS,
-      new LinearKernel)
+    val param = new SVMParameter(new LinearKernel)
 
     val source = Source.fromString("-1\t1:1.0\t2:22.08\t3:11.46\n+1\t1:2.0\t2:22.08\t3:11.46")
     val problem = SVMProblem.get(param, source)

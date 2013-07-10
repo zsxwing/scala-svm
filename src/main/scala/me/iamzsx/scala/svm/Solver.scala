@@ -47,7 +47,7 @@ class Solver(
   Cn: Double) {
 
   private val epsilon = param.eps
-  private val shrinking = param.shrinking
+  // private val shrinking = param.shrinking
 
   val LOWER_BOUND = 2
   val UPPER_BOUND = 1
@@ -147,9 +147,9 @@ class Solver(
       counter = counter - 1
       if (counter == 0) {
         counter = len min 1000
-        if (shrinking) {
-          doShrinking
-        }
+        //        if (shrinking) {
+        //          doShrinking
+        //        }
         println(".")
       }
 
@@ -368,6 +368,14 @@ object Solver {
 
     solver.solve
   }
+}
+
+trait FormulationSolver {
+  def solve(problem: SVMProblem, param: SVMParameter): Solution
+}
+
+class OneClassSolver extends FormulationSolver {
+  def solve(problem: SVMProblem, param: SVMParameter) = Solver.solveOneClass(problem, param)
 }
 
 case class Solution(
