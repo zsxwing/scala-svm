@@ -77,7 +77,9 @@ class SVMModel(
 
   def predict(instance: Instance): Double = predict(instance.x)
 
-  def predict_values(x: List[SVMNode]): (Double) = 0.0
+  def predict_values(x: List[SVMNode]): Double = {
+    supportVectors(0).map(supportVector => param.kernel(x, supportVector.vector)).sum - rho(0);
+  }
 
   def save(file: String) {}
 
