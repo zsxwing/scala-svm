@@ -43,7 +43,7 @@ trait SVMTrainer {
 
 class OneClassOrRegressionTrainer extends SVMTrainer {
 
-  def train(param: SVMParameter, problem: SVMProblem): SVMModel = {
+  def train(param: SVMParameter, problem: SVMProblem): OneClassModel = {
     val nr_class = 2
 
     val decisionFunction = train_one(param, problem, 0, 0)
@@ -53,10 +53,9 @@ class OneClassOrRegressionTrainer extends SVMTrainer {
       suportVectors += new SupportVector(problem.x(i), decisionFunction.alpha(i), i + 1)
     }
 
-    new SVMModel(
-      nr_class,
+    new OneClassModel(
       param,
-      Array(suportVectors.toArray),
+      suportVectors.toArray,
       Array(decisionFunction.rho))
   }
 

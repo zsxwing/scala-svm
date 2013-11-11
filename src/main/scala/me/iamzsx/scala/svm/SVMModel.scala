@@ -52,36 +52,99 @@ class EpsilonSVRSVMParamter(
   eps: Double,
   val C: Double,
   val p: Double) extends SVMParameter(kernel, nu, eps) {
-
 }
 
 case class SupportVector(
   val vector: List[SVMNode],
   val coefficient: Double,
   val index: Int) {
-
-  //  override def toString = vector.toString + " " + coefficient + " " + index
 }
 
-class SVMModel(
-  val nr_class: Int,
+trait SVMModel {
+
+  def predict(instance: Instance): Double = predict_values(instance.x)._1
+
+  protected[this] def predict_values(x: List[SVMNode]): (Double, Array[Double])
+
+  def save(file: String) {} // TODO
+}
+
+class BaseModel(
+  param: SVMParameter,
+  supportVector: Array[SupportVector],
+  rho: Array[Double]) extends SVMModel {
+
+  override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
+    val predictResult = supportVector.map {
+      supportVector => supportVector.coefficient * param.kernel(x, supportVector.vector)
+    }.sum - rho(0)
+    (predictResult, Array(predictResult))
+  }
+
+  override def toString = Array(
+    param.toString,
+    "total_sv " + supportVector.size, // TODO
+    "rho " + rho.mkString(" ")).mkString("\n")
+}
+
+class OneClassModel(
   val param: SVMParameter,
-  val supportVectors: Array[Array[SupportVector]],
-  val rho: Array[Double]) {
+  val supportVector: Array[SupportVector],
+  val rho: Array[Double]) extends BaseModel(param, supportVector, rho) {
 
-  require(supportVectors.size == rho.size)
-
-  def predict(x: List[SVMNode]) = {
-    predict_values(x)
+  override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
+    val (predictResult, decisionValues) = super.predict_values(x)
+    if (predictResult > 0) (1, decisionValues) else (-1, decisionValues)
   }
+}
 
-  def predict(instance: Instance): Double = predict(instance.x)
+class NuSVRModel(
+  param: SVMParameter,
+  supportVector: Array[SupportVector],
+  rho: Array[Double]) extends BaseModel(param, supportVector, rho) {
+}
 
-  def predict_values(x: List[SVMNode]): Double = {
-    supportVectors(0).map(supportVector => param.kernel(x, supportVector.vector)).sum - rho(0);
+class EpsilonSVRModel(
+  param: SVMParameter,
+  supportVector: Array[SupportVector],
+  rho: Array[Double]) extends BaseModel(param, supportVector, rho) {
+}
+
+class SupportVectorClassificationModel(
+  val nrClass: Int,
+  val param: SVMParameter,
+  private val supportVectors: Array[Array[SupportVector]],
+  val rho: Array[Double],
+  val label: Array[Int]) extends SVMModel {
+
+  override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
+    val l = supportVectors.size;
+    val kValue = supportVectors.map { supportVectorForClass =>
+      supportVectorForClass.map { supportVector =>
+        supportVector.coefficient * param.kernel(x, supportVector.vector)
+      }
+    }
+    val votes = Array.fill(nrClass)(0)
+    val decisionValues = Array.fill(nrClass * (nrClass - 1) / 2)(0.0)
+    var p = 0
+    for (
+      i <- 0 until nrClass;
+      j <- i + 1 until nrClass
+    ) {
+      val sum =
+        (for (k <- 1 until supportVectors(i).size) yield supportVectors(i)(k).coefficient * kValue(i)(k)).sum +
+          (for (k <- 1 until supportVectors(j).size) yield supportVectors(j)(k).coefficient * kValue(j)(k)).sum -
+          rho(p)
+      if (sum > 0) {
+        votes(i) = votes(i) + 1
+      } else {
+        votes(j) = votes(j) + 1
+      }
+      decisionValues(p) = sum
+      p += 1
+    }
+    (label(votes.maxBy(i => votes(i))), decisionValues)
   }
-
-  def save(file: String) {}
 
   override def toString = Array(
     param.toString,
@@ -89,22 +152,20 @@ class SVMModel(
     "rho " + rho.mkString(" ")).mkString("\n")
 }
 
-class BaseModel(
+class CSVCModel(
+  nrClass: Int,
   param: SVMParameter,
   supportVectors: Array[Array[SupportVector]],
-  rho: Array[Double]) extends SVMModel(2, param, supportVectors, rho) {
-
-  override def predict_values(x: List[SVMNode]): Double = {
-    supportVectors(0).map(supportVector => param.kernel(x, supportVector.vector)).sum - rho(0);
-  }
+  rho: Array[Double],
+  label: Array[Int]) extends SupportVectorClassificationModel(nrClass, param, supportVectors, rho, label) {
 }
 
-class CSVCModel {
-
-}
-
-class NUSVCModel {
-
+class NuSVCModel(
+  nrClass: Int,
+  param: SVMParameter,
+  supportVectors: Array[Array[SupportVector]],
+  rho: Array[Double],
+  label: Array[Int]) extends SupportVectorClassificationModel(nrClass, param, supportVectors, rho, label) {
 }
 
 object SVMModel {
