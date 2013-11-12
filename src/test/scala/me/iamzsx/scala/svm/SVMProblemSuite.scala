@@ -17,7 +17,7 @@ class SVMProblemSuite extends FunSuite with BeforeAndAfter {
   var param: SVMParameter = null
 
   before {
-    param = new SVMParameter(new LinearKernel, 0, 0)
+    param = new SVMParameter(LinearKernel, 0, 0)
   }
 
   test("get") {

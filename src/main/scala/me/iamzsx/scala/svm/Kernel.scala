@@ -50,13 +50,13 @@ trait Kernel {
 }
 
 object Kernel {
-  
+
 }
 
 /**
  * @see http://en.wikipedia.org/wiki/Support_vector_machine
  */
-class LinearKernel extends Kernel {
+object LinearKernel extends Kernel {
 
   override def kernelType = LINEAR
 

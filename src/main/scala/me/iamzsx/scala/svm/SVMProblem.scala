@@ -15,18 +15,42 @@ class SVMNode(
 }
 
 object SVMNode {
+
+  private val REGEX_OF_SVMNODE = """(.+):(.+)""".r
+
   def apply(index: Int, value: Double) = new SVMNode(index, value)
+
+  def fromString(s: String): SVMNode = s match {
+    case REGEX_OF_SVMNODE(index, value) =>
+      SVMNode(index.toInt, value.toDouble)
+  }
 }
 
 class Instance(
   val x: List[SVMNode],
   val y: Double) {
 
-  override def toString = "(" + y + "|" + x.mkString(", ") + ")"
+  override def toString = y + " " + x.mkString(" ")
 }
 
 object Instance {
+
   def apply(x: List[SVMNode], y: Double) = new Instance(x, y)
+
+  def fromString(s: String, delimiter: String = " "): Instance = {
+    try {
+      val tokens = s.trim().split(delimiter)
+      val vector = tokens.tail map SVMNode.fromString
+      // Integer.parseInt("+1") throws NumberFormatException before JDK7
+      val coefficient = tokens.head match {
+        case token if token.startsWith("+") => token.tail.toInt
+        case token => token.toInt
+      }
+      Instance(vector.toList, coefficient)
+    } catch {
+      case e: Throwable => throw new IOException("Invalid input: " + s, e)
+    }
+  }
 }
 
 class SVMProblem(val instances: Array[Instance]) {

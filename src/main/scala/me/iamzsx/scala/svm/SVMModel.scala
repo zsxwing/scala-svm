@@ -3,9 +3,9 @@ package me.iamzsx.scala.svm
 import java.io._
 import scala.math._
 import scala.io._
-
 import scala.io.Source
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.ListBuffer
 
 trait Gamma {
   def gamma: Double
@@ -58,6 +58,19 @@ case class SupportVector(
   val vector: List[SVMNode],
   val coefficient: Double,
   val index: Int) {
+}
+
+object SupportVector {
+  def fromString(s: String): SupportVector = {
+    try {
+      val tokens = s.trim().split(" ")
+      val vector = tokens.tail map SVMNode.fromString
+      val coefficient = tokens.head.toDouble
+      new SupportVector(vector.toList, coefficient, 0)
+    } catch {
+      case e: Throwable => throw new IOException("Invalid input: " + s, e)
+    }
+  }
 }
 
 trait SVMModel {

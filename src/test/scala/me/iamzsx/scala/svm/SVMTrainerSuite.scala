@@ -13,7 +13,7 @@ import AssertUtil._
 class SVMTrainerSuite extends FunSuite {
 
   test("1 train case") {
-    val param = new SVMParameter(new LinearKernel)
+    val param = new SVMParameter(LinearKernel)
 
     val source = Source.fromString("-1\t1:1.0\t2:22.08\t3:11.46")
     val problem = SVMProblem.get(param, source)
@@ -27,7 +27,7 @@ class SVMTrainerSuite extends FunSuite {
   }
 
   test("2 train case") {
-    val param = new SVMParameter(new LinearKernel)
+    val param = new SVMParameter(LinearKernel)
 
     val source = Source.fromString("-1\t1:1.0\t2:22.08\t3:11.46\n+1\t1:2.0\t2:22.08\t3:11.46")
     val problem = SVMProblem.get(param, source)

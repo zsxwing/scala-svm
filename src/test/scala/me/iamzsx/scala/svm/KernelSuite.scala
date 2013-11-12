@@ -47,7 +47,7 @@ class LinearKernelSuite extends FunSuite {
   val DELTA = 10E-6
 
   test("toString") {
-    assertEquals("kernel_type linear", new LinearKernel().toString)
+    assertEquals("kernel_type linear", LinearKernel.toString)
   }
 
 }
