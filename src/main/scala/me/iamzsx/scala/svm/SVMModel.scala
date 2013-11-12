@@ -54,9 +54,24 @@ class EpsilonSVRSVMParamter(
   val p: Double) extends SVMParameter(kernel, nu, eps) {
 }
 
+import Coefficients._
+
+case class Coefficients(
+  val coefficients: Array[Array[ClassifierCoefficient]]) {
+
+  def get(classifier: Classifier): ClassifierCoefficient = {
+    coefficients(classifier._1)(classifier._2)
+  }
+}
+
+object Coefficients {
+  type Classifier = (Int, Int)
+  type CoefficientVector = Array[Double]
+  type ClassifierCoefficient = (CoefficientVector, CoefficientVector)
+}
+
 case class SupportVector(
   val vector: List[SVMNode],
-  val coefficient: Double,
   val index: Int) {
 }
 
@@ -64,9 +79,8 @@ object SupportVector {
   def fromString(s: String): SupportVector = {
     try {
       val tokens = s.trim().split(" ")
-      val vector = tokens.tail map SVMNode.fromString
-      val coefficient = tokens.head.toDouble
-      new SupportVector(vector.toList, coefficient, 0)
+      val vector = tokens map SVMNode.fromString
+      new SupportVector(vector.toList, 0)
     } catch {
       case e: Throwable => throw new IOException("Invalid input: " + s, e)
     }
@@ -82,28 +96,34 @@ trait SVMModel {
   def save(file: String) {} // TODO
 }
 
+import Coefficients._
+
 class BaseModel(
   param: SVMParameter,
   supportVector: Array[SupportVector],
-  rho: Array[Double]) extends SVMModel {
+  coefficientVector: CoefficientVector,
+  rho: Double) extends SVMModel {
+
+  require(supportVector.size == coefficientVector.size)
 
   override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
-    val predictResult = supportVector.map {
-      supportVector => supportVector.coefficient * param.kernel(x, supportVector.vector)
-    }.sum - rho(0)
+    val predictResult = ((0 until supportVector.size) map {
+      i => coefficientVector(i) * param.kernel(x, supportVector(i).vector)
+    }).sum - rho
     (predictResult, Array(predictResult))
   }
 
   override def toString = Array(
     param.toString,
     "total_sv " + supportVector.size, // TODO
-    "rho " + rho.mkString(" ")).mkString("\n")
+    "rho " + rho).mkString("\n")
 }
 
 class OneClassModel(
   val param: SVMParameter,
   val supportVector: Array[SupportVector],
-  val rho: Array[Double]) extends BaseModel(param, supportVector, rho) {
+  val coefficientVector: CoefficientVector,
+  val rho: Double) extends BaseModel(param, supportVector, coefficientVector, rho) {
 
   override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
     val (predictResult, decisionValues) = super.predict_values(x)
@@ -114,27 +134,33 @@ class OneClassModel(
 class NuSVRModel(
   param: SVMParameter,
   supportVector: Array[SupportVector],
-  rho: Array[Double]) extends BaseModel(param, supportVector, rho) {
+  coefficientVector: CoefficientVector,
+  rho: Double) extends BaseModel(param, supportVector, coefficientVector, rho) {
 }
 
 class EpsilonSVRModel(
   param: SVMParameter,
   supportVector: Array[SupportVector],
-  rho: Array[Double]) extends BaseModel(param, supportVector, rho) {
+  coefficientVector: CoefficientVector,
+  rho: Double) extends BaseModel(param, supportVector, coefficientVector, rho) {
 }
 
 class SupportVectorClassificationModel(
   val nrClass: Int,
   val param: SVMParameter,
-  private val supportVectors: Array[Array[SupportVector]],
+  val supportVectors: Array[Array[SupportVector]],
+  val coefficients: Coefficients,
   val rho: Array[Double],
-  val label: Array[Int]) extends SVMModel {
+  val label: Seq[Int]) extends SVMModel {
+
+  // TODO
+  require(supportVectors.size * (supportVectors.size - 1) / 2 == rho.size)
 
   override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
     val l = supportVectors.size;
     val kValue = supportVectors.map { supportVectorForClass =>
       supportVectorForClass.map { supportVector =>
-        supportVector.coefficient * param.kernel(x, supportVector.vector)
+        param.kernel(x, supportVector.vector)
       }
     }
     val votes = Array.fill(nrClass)(0)
@@ -144,9 +170,10 @@ class SupportVectorClassificationModel(
       i <- 0 until nrClass;
       j <- i + 1 until nrClass
     ) {
+      val (coefficientVectorOfI, coefficientVectorOfJ) = coefficients.get(i, j)
       val sum =
-        (for (k <- 1 until supportVectors(i).size) yield supportVectors(i)(k).coefficient * kValue(i)(k)).sum +
-          (for (k <- 1 until supportVectors(j).size) yield supportVectors(j)(k).coefficient * kValue(j)(k)).sum -
+        (for (k <- 0 until supportVectors(i).size) yield coefficientVectorOfI(k) * kValue(i)(k)).sum +
+          (for (k <- 0 until supportVectors(j).size) yield coefficientVectorOfJ(k) * kValue(j)(k)).sum -
           rho(p)
       if (sum > 0) {
         votes(i) = votes(i) + 1
@@ -169,16 +196,18 @@ class CSVCModel(
   nrClass: Int,
   param: SVMParameter,
   supportVectors: Array[Array[SupportVector]],
+  coefficients: Coefficients,
   rho: Array[Double],
-  label: Array[Int]) extends SupportVectorClassificationModel(nrClass, param, supportVectors, rho, label) {
+  label: Seq[Int]) extends SupportVectorClassificationModel(nrClass, param, supportVectors, coefficients, rho, label) {
 }
 
 class NuSVCModel(
   nrClass: Int,
   param: SVMParameter,
   supportVectors: Array[Array[SupportVector]],
+  coefficients: Coefficients,
   rho: Array[Double],
-  label: Array[Int]) extends SupportVectorClassificationModel(nrClass, param, supportVectors, rho, label) {
+  label: Seq[Int]) extends SupportVectorClassificationModel(nrClass, param, supportVectors, coefficients, rho, label) {
 }
 
 object SVMModel {

@@ -10,7 +10,6 @@ object AssertUtil {
 
   implicit def svmAssertEquals(excepted: SupportVector, actual: SupportVector) {
     org.junit.Assert.assertEquals(excepted.vector, actual.vector)
-    org.junit.Assert.assertEquals(excepted.coefficient, actual.coefficient, DELTA)
     org.junit.Assert.assertEquals(excepted.index, actual.index)
   }
 

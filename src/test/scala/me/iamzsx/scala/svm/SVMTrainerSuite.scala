@@ -20,10 +20,9 @@ class SVMTrainerSuite extends FunSuite {
 
     val solution = Solver.solveOneClass(problem, param)
     val model = SVM("one_class").trainer.train(param, problem).asInstanceOf[OneClassModel]
-    svmAssertEquals(309.929000, model.rho(0))
-    svmAssertEquals(
-      Array(
-        new SupportVector(problem.x(0), 0.5, 1)), model.supportVector)
+    svmAssertEquals(309.929000, model.rho)
+    svmAssertEquals(Array(new SupportVector(problem.x(0), 1)), model.supportVector)
+    svmAssertEquals(Array(0.5), model.coefficientVector)
   }
 
   test("2 train case") {

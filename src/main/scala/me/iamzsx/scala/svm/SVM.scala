@@ -2,6 +2,7 @@ package me.iamzsx.scala.svm
 
 import scala.math._
 import scala.collection.mutable.ArrayBuffer
+import Coefficients._
 
 class DecisionFunction(val alpha: Array[Double], val rho: Double)
 
@@ -49,14 +50,17 @@ class OneClassOrRegressionTrainer extends SVMTrainer {
     val decisionFunction = train_one(param, problem, 0, 0)
 
     val suportVectors = ArrayBuffer[SupportVector]()
+    val coefficientVector  = ArrayBuffer[Double]()
     for (i <- 0 until problem.size if abs(decisionFunction.alpha(i)) > 0) {
-      suportVectors += new SupportVector(problem.x(i), decisionFunction.alpha(i), i + 1)
+      suportVectors += new SupportVector(problem.x(i), i + 1)
+      coefficientVector += decisionFunction.alpha(i)
     }
 
     new OneClassModel(
       param,
       suportVectors.toArray,
-      Array(decisionFunction.rho))
+      coefficientVector.toArray,
+      decisionFunction.rho)
   }
 
   def solver: FormulationSolver = new OneClassSolver
