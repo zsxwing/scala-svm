@@ -89,9 +89,11 @@ object SupportVector {
 
 trait SVMModel {
 
-  def predict(instance: Instance): Double = predict_values(instance.x)._1
+  def predict(instance: Instance): Double = predictValues(instance.x)._1
 
-  protected[this] def predict_values(x: List[SVMNode]): (Double, Array[Double])
+  def predictProbability(instance: Instance): Double = ???
+
+  protected[this] def predictValues(x: List[SVMNode]): (Double, Array[Double])
 
   def save(file: String) {} // TODO
 }
@@ -106,7 +108,7 @@ class BaseModel(
 
   require(supportVector.size == coefficientVector.size)
 
-  override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
+  override def predictValues(x: List[SVMNode]): (Double, Array[Double]) = {
     val predictResult = ((0 until supportVector.size) map {
       i => coefficientVector(i) * param.kernel(x, supportVector(i).vector)
     }).sum - rho
@@ -125,8 +127,8 @@ class OneClassModel(
   val coefficientVector: CoefficientVector,
   val rho: Double) extends BaseModel(param, supportVector, coefficientVector, rho) {
 
-  override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
-    val (predictResult, decisionValues) = super.predict_values(x)
+  override def predictValues(x: List[SVMNode]): (Double, Array[Double]) = {
+    val (predictResult, decisionValues) = super.predictValues(x)
     if (predictResult > 0) (1, decisionValues) else (-1, decisionValues)
   }
 }
@@ -156,7 +158,7 @@ class SupportVectorClassificationModel(
   // TODO
   require(supportVectors.size * (supportVectors.size - 1) / 2 == rho.size)
 
-  override def predict_values(x: List[SVMNode]): (Double, Array[Double]) = {
+  override def predictValues(x: List[SVMNode]): (Double, Array[Double]) = {
     val l = supportVectors.size;
     val kValue = supportVectors.map { supportVectorForClass =>
       supportVectorForClass.map { supportVector =>
