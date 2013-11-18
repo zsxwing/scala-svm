@@ -115,6 +115,8 @@ class BaseModel(
     (predictResult, Array(predictResult))
   }
 
+  override def predictProbability(instance: Instance): Double = predict(instance)
+
   override def toString = Array(
     param.toString,
     "total_sv " + supportVector.size, // TODO
