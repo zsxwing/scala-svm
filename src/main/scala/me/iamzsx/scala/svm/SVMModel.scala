@@ -91,7 +91,7 @@ trait SVMModel {
 
   def predict(instance: Instance): Double = predictValues(instance.x)._1
 
-  def predictProbability(instance: Instance): Double = ???
+  def predictProbability(instance: Instance): Double = 0.0
 
   protected[this] def predictValues(x: List[SVMNode]): (Double, Array[Double])
 

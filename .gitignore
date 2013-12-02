@@ -1,7 +1,13 @@
-.gradle
-build
-bin
+# sbt
+lib_managed/
+target/
+.cache
+
+# eclipse
 .classpath
 .project
-.settings
-.cache
+.settings/
+
+# idea
+.idea/
+.idea_modules/
