@@ -85,7 +85,7 @@ class SVMModelSuite extends FunSuite with BeforeAndAfter {
           (Array(0.001532567049808429), Array(-0.001532567049808429)))))
     val rho = Array(0.274546, -4.89109, 0.052762, -0.585534, -0.39469, 0.610728)
     val label = 1 to 4
-    val model = new CSVCModel(4, param, supportVector, coefficients, rho, label)
+    val model = new CSVCModel(4, param, supportVector, coefficients, rho, Array(), Array(), label)
     assertPredictInstance("1 1:1.000000 2:22.080000 3:11.460000", model)
     assertPredictInstance("2 1:19", model)
     assertPredictInstance("3 2:34 3:15", model)
@@ -123,7 +123,7 @@ class SVMModelSuite extends FunSuite with BeforeAndAfter {
           (Array(0.001020943323660012, 0.003034858921016748), Array(-0.00405580224467676)))))
     val rho = Array(-0.2425, 1.67644, -0.733569, 0.999141, -0.39469, -1.03168)
     val label = 1 to 4
-    val model = new NuSVCModel(4, param, supportVector, coefficients, rho, label)
+    val model = new NuSVCModel(4, param, supportVector, coefficients, rho, Array(), Array(), label)
 
     assertPredictInstance("1 1:1.000000 2:22.080000 3:11.460000", model)
     assertPredictInstance("1 2:13.080000 3:7.0000", model)
